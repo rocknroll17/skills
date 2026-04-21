@@ -90,9 +90,36 @@ arXiv ID가 있으면:
    | 1 | `fig1-...png` | ... |
    ```
 
-### 경로 2: pdfimages fallback
+### 경로 2: arXiv TeX source (HTML 실패 시)
 
-arXiv ID가 없거나 HTML 버전이 존재하지 않으면:
+HTML 버전이 없거나 WebFetch가 빈 JSON을 돌려주면:
+
+1. **TeX tarball 다운로드**:
+   ```bash
+   mkdir -p /tmp/paper-src-$$ && cd /tmp/paper-src-$$
+   curl -sL "https://arxiv.org/e-print/<id>" -o src.tar.gz
+   file src.tar.gz   # 일부 논문은 단일 .tex 파일 — 'gzip compressed' 확인
+   tar xzf src.tar.gz 2>/dev/null || gunzip -c src.tar.gz > main.tex
+   ```
+
+2. **이미지 파일 통째 복사** (확장자 기반):
+   ```bash
+   find . -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.pdf' -o -iname '*.eps' \) \
+     -not -name 'paper.pdf' -exec cp {} <CWD>/figures/ \;
+   ```
+
+3. **Caption 매핑 시도** (best-effort):
+   - 메인 `.tex` 파일(`\documentclass` 포함된 것) 찾기.
+   - `\begin{figure}...\end{figure}` 블록 grep으로 순서대로 추출.
+   - 블록 안의 `\includegraphics[...]{FILE}`와 `\caption{...}` 페어링.
+   - `figures/CAPTIONS.md` 작성: `| N | 파일 | 캡션 |` 표.
+   - 실패하면 "TeX source extraction, captions best-effort" 라고 명시.
+
+4. 임시 디렉토리 정리: `rm -rf /tmp/paper-src-$$`.
+
+### 경로 3: pdfimages fallback (마지막 수단)
+
+HTML도 TeX도 실패하면:
 
 ```bash
 pdfimages -png pdf/paper.pdf figures/img    # figures/img-000.png, 001, ...
