@@ -1,0 +1,22 @@
+{
+  "name": "paper-study",
+  "description": "Drop-in briefing agent for reading a research paper with Claude Code. Run /paper-study:new-paper <arxiv_id> in an empty folder and Claude turns into a paper-specific tutor.",
+  "version": "0.1.0",
+  "author": {
+    "name": "rocknroll17"
+  },
+  "homepage": "https://github.com/rocknroll17/skills/tree/main/paper-study",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rocknroll17/skills"
+  },
+  "license": "MIT",
+  "keywords": [
+    "paper",
+    "research",
+    "arxiv",
+    "study",
+    "briefing",
+    "tutor"
+  ]
+}

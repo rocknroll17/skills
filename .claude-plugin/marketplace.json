@@ -1,0 +1,15 @@
+{
+  "name": "rocknroll17-skills",
+  "owner": {
+    "name": "rocknroll17",
+    "email": "gon1397@naver.com"
+  },
+  "description": "Claude Code plugins for research and study workflows.",
+  "plugins": [
+    {
+      "name": "paper-study",
+      "source": "./paper-study",
+      "description": "Drop-in briefing agent for reading a research paper. Run /paper-study:new-paper <arxiv_id> to scaffold notes, glossary, and a CLAUDE.md tuned to the paper."
+    }
+  ]
+}
