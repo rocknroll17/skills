@@ -106,6 +106,7 @@
 ./
 ├── CLAUDE.md                 # 이 파일
 ├── pdf/                      # 논문 PDF (/new-paper 가 채움)
+├── figures/                  # 논문 Figure 이미지 + CAPTIONS.md
 ├── notes/                    # 섹션별 완전 분석 (이 파일들만 읽어도 논문 전체 이해)
 │   ├── 00-overview.md
 │   ├── 01-abstract-intro.md
