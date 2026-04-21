@@ -106,13 +106,14 @@
 ./
 ├── CLAUDE.md                 # 이 파일
 ├── pdf/                      # 논문 PDF (/new-paper 가 채움)
-├── notes/                    # 섹션별 브리핑 노트 (질문받을 때마다 누적)
+├── notes/                    # 섹션별 완전 분석 (이 파일들만 읽어도 논문 전체 이해)
 │   ├── 00-overview.md
 │   ├── 01-abstract-intro.md
 │   ├── 02-related-work.md
 │   ├── 03-method.md
-│   ├── 04-experiments.md
-│   └── 05-limitations.md
+│   ├── 04-dataset.md
+│   ├── 05-experiments.md
+│   └── 06-limitations.md
 ├── glossary/terms.md         # 용어집 (등장 시마다 누적)
 └── .claude/skills/           # 슬래시 커맨드
 ```
