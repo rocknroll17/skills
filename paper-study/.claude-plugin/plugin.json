@@ -6,10 +6,7 @@
     "name": "rocknroll17"
   },
   "homepage": "https://github.com/rocknroll17/skills/tree/main/paper-study",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/rocknroll17/skills"
-  },
+  "repository": "https://github.com/rocknroll17/skills",
   "license": "MIT",
   "keywords": [
     "paper",
