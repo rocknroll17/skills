@@ -3,7 +3,7 @@
   "name": "paper-study",
   "displayName": "Paper Study",
   "description": "Drop-in briefing agent for reading a research paper with Claude Code. /paper-study:new-paper <arxiv_id> downloads the PDF, scaffolds the project, and fully analyzes every section into notes/ + glossary/ so the generated files replace the paper itself.",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "author": {
     "name": "rocknroll17",
     "email": "gon1397@naver.com"
