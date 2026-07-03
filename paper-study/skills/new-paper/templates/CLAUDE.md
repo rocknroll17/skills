@@ -167,14 +167,9 @@ ASCII 다이어그램은 구조·흐름이 복잡할 때 박스·화살표·레�
 ├── CLAUDE.md                 # 이 파일
 ├── pdf/paper.pdf             # 논문 PDF
 ├── figures/                  # Figure 이미지 + CAPTIONS.md
-├── notes/                    # 섹션별 완전 분석 (서사형)
+├── notes/                    # 구획별 완전 분석 (서사형)
 │   ├── 00-overview.md        # 한눈 지도 — 다른 notes의 목차 역할
-│   ├── 01-abstract-intro.md
-│   ├── 02-related-work.md
-│   ├── 03-method.md
-│   ├── 04-dataset.md
-│   ├── 05-experiments.md
-│   └── 06-limitations.md
+│   └── NN-<구획>.md          # 논문 구조에 맞춰 설계된 구획들 (번호 = 추천 읽기 순서)
 └── glossary/terms.md         # 3층 용어집
 ```
 

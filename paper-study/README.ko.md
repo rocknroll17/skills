@@ -30,7 +30,7 @@ Claude Code plugin. 논문 한 편마다 **전용 브리핑 에이전트**를 �
 ## `/paper-study:new-paper`가 하는 일
 
 1. 논문 제목을 확보해 키워드 작업 폴더 생성 (예: `gaussian-splatting-avatars/`)
-2. 그 안에 PDF(`pdf/paper.pdf`)·`CLAUDE.md`·`notes/` (6개)·`glossary/terms.md` 생성
+2. 그 안에 PDF(`pdf/paper.pdf`)·`CLAUDE.md`·`notes/`·`glossary/terms.md` 생성
 3. 제목·저자·venue 추출해 `CLAUDE.md` §1 채움
 4. PDF 첫 4쪽 정도 읽고 `notes/00-overview.md`에 한 줄 요약 쓰기
 5. Figure를 `figures/`로 추출 (백그라운드 작업)
@@ -54,7 +54,7 @@ Claude Code plugin. 논문 한 편마다 **전용 브리핑 에이전트**를 �
 ├── gaussian-splatting-avatars/   # 논문마다 생성 — 제목 키워드 이름
 │   ├── CLAUDE.md                 # 설명자 인격 정의, 이 폴더에서 자동 로드
 │   ├── pdf/paper.pdf             # 논문
-│   ├── notes/                    # 00-overview.md ~ 06-limitations.md
+│   ├── notes/                    # 00-overview + 논문 구조에 맞춘 구획들
 │   └── glossary/terms.md         # 용어 누적
 └── another-paper/ …
 ```

@@ -32,7 +32,7 @@ Then from any folder, pass an arXiv ID, a URL, or a local PDF — each paper get
 ## What `/paper-study:new-paper` does
 
 1. Fetches the paper title and creates a keyword-named work folder (e.g. `gaussian-splatting-avatars/`)
-2. Downloads the PDF into `<folder>/pdf/paper.pdf` and creates `CLAUDE.md`, `notes/` (6 skeletons), `glossary/terms.md` inside it
+2. Downloads the PDF into `<folder>/pdf/paper.pdf` and creates `CLAUDE.md`, `notes/`, `glossary/terms.md` inside it
 3. Extracts title / authors / venue and fills `CLAUDE.md` §1
 4. Reads the first ~4 pages and writes a one-line overview into `notes/00-overview.md`
 5. Extracts figures into `figures/` (run as a background job)
@@ -56,7 +56,7 @@ Then from any folder, pass an arXiv ID, a URL, or a local PDF — each paper get
 ├── gaussian-splatting-avatars/   # created per paper, named from title keywords
 │   ├── CLAUDE.md                 # tutor personality; auto-loaded in this folder
 │   ├── pdf/paper.pdf             # the paper
-│   ├── notes/                    # 00-overview.md … 06-limitations.md
+│   ├── notes/                    # 00-overview + sections shaped to the paper
 │   └── glossary/terms.md         # grows as new terms appear
 └── another-paper/ …
 ```

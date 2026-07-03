@@ -1,6 +1,6 @@
 ---
 name: new-paper
-description: '현재 디렉토리 아래에 논문 제목 키워드로 폴더를 만들어 그 안을 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow'
+description: '현재 디렉토리 아래에 논문 제목 키워드로 폴더를 만들어 그 안을 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 논문 구조에 맞춰 설계한 note 구획과 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow'
 argument-hint: '<arxiv_id | pdf_path | url> [--shallow]'
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
@@ -56,7 +56,7 @@ mkdir -p <slug>
 ```bash
 cp -rn "${CLAUDE_SKILL_DIR}/templates/." <slug>/
 ```
-`CLAUDE.md`, `notes/00-overview.md`~`06-limitations.md`(7개), `glossary/terms.md`, `pdf/`가 채워진다. `-n`이므로 기존 파일은 보존된다. 충돌 시 사용자에게 확인.
+`CLAUDE.md`, `notes/00-overview.md`, `notes/_section-template.md`, `glossary/terms.md`, `pdf/`가 채워진다. 섹션별 note 파일은 여기서 만들지 않는다 — **구획은 Phase B에서 논문을 읽고 설계한다.** `-n`이므로 기존 파일은 보존된다. 충돌 시 사용자에게 확인.
 
 ### 3) PDF 확보
 `<slug>/pdf/paper.pdf`로 다운로드·복사한다 (0단계에서 임시 다운로드했다면 `mv`). 실패 시 사용자에게 URL·경로 재확인을 요청한다. 허위 데이터 생성 금지.
@@ -146,13 +146,24 @@ Phase B 진입 전, figure 백그라운드 작업의 완료를 확인하고 `fig
 
 `--shallow`가 아닐 때만 실행한다. 산출물 품질이 결정되는 단계다.
 
+### 구획 설계 (Phase B의 첫 작업)
+note 구획은 **미리 정해져 있지 않다.** 논문의 실제 구조를 보고 설계한다 — 분야 무관 (실증·이론·서베이·인문 등 어떤 형태든).
+
+1. **구조 파악**: 목차·섹션 헤더를 훑는다. `pdftotext`가 있으면 헤더 추출, 없으면 첫 분할 Read에서 파악.
+2. **논리 단위로 묶는다**: 논문 섹션 수와 1:1일 필요 없다. 짧은 섹션은 합치고, 무거운 섹션(핵심 기여)은 쪼갠다. 총 **3~8개**.
+3. **파일명 부여**: `notes/NN-<영문-kebab-slug>.md`, `00`은 overview 예약. 번호는 **추천 읽기 순서** (논문 순서와 달라도 된다).
+4. **파일 생성**: 각 구획마다 `notes/_section-template.md`를 복사해 `{{SECTION_TITLE}}`을 치환한다.
+5. 설계한 구획 목록(파일명 + 담당 범위 §X~§Y)을 사용자에게 한 줄씩 보고하고 진행한다.
+
+분량 가이드: 핵심 기여 구획 200~350줄, 배경·맥락 구획 100~200줄, 결론·한계 구획 60~120줄.
+
 ### 읽기 전략
 - 총 페이지 수를 파악한 뒤 5~6페이지 단위로 분할 Read.
-- 섹션의 논리 단위로 분할한다.
+- 구획의 논리 단위로 분할한다.
 - 재독 금지.
 
-### 섹션별 작성 절차 (모든 섹션 공통)
-각 섹션을 해당 `notes/0X-*.md`에 작성한다. 다음 **9단계** 순서를 따른다.
+### 구획별 작성 절차 (모든 구획 공통)
+각 구획을 해당 `notes/NN-*.md`에 작성한다. 다음 **9단계** 순서를 따른다.
 
 #### 단계 1 — 본문 읽기
 해당 섹션 PDF 페이지를 Read.
@@ -202,16 +213,13 @@ Phase B 진입 전, figure 백그라운드 작업의 완료를 확인하고 `fig
 섹션 말미에:
 > "(한 문장으로 요약하면? 자기 말로 답해본 뒤 §X.Y 확인.)"
 
-### 섹션 → 파일 매핑
+### 구획 설계 예시 (참고용 — 강제 아님)
 
-| 논문 섹션 | 쓸 파일 | 분량 기준 |
-| --- | --- | --- |
-| Abstract + Introduction | `notes/01-abstract-intro.md` | 100~200줄 |
-| Related Work | `notes/02-related-work.md` | 100~180줄 (기술 계보 포함) |
-| Method (수식 포함) | `notes/03-method.md` | 200~350줄 |
-| Dataset / Experimental Setup | `notes/04-dataset.md` | 100~220줄 (없으면 skeleton 유지) |
-| Experiments / Ablations | `notes/05-experiments.md` | 150~300줄 |
-| Limitations / Conclusion | `notes/06-limitations.md` | 60~120줄 |
+| 논문 유형 | 자연스러운 구획 예 |
+| --- | --- |
+| 실증 연구 (ML·과학 실험 등) | intro → related → method → experiments → limitations |
+| 이론·수학 | problem-setup → main-theorem → proof-ideas → implications |
+| 서베이 | taxonomy → 주제 갈래별 1개씩 → open-problems |
 
 ### 주의
 - **Hallucination 금지**. 논문에 없는 수치·결과·수식은 창작하지 않는다. 외부 배경은 `(논문 밖, WebSearch)`로 표기한다.
@@ -235,26 +243,21 @@ Phase B 진입 전, figure 백그라운드 작업의 완료를 확인하고 `fig
 figures: <M>개 ./figures/에 저장
 독자 프로필: <분야 친숙도> / <형식 도구> (CLAUDE.md §2)
 
-분석 상태:
+분석 상태 (구획은 이 논문 구조에 맞춰 설계):
 - notes/00-overview.md        ✅ (전체 지도)
-- notes/01-abstract-intro.md  ✅
-- notes/02-related-work.md    ✅
-- notes/03-method.md          ✅ (수식 N개 포함)
-- notes/04-dataset.md         ✅ / skeleton (해당 없음)
-- notes/05-experiments.md     ✅
-- notes/06-limitations.md     ✅
+- notes/NN-<구획>.md          ✅ (설계한 구획 수만큼 나열, 담당 범위 §X~§Y 병기)
 - glossary/terms.md           ✅ (N개 용어, 3층 구조)
 
 한 줄: <overview 한 줄>
 
-읽기 순서 추천: 00 → 01 → 03 → 04 → 05 → 06. 모르는 용어는 glossary 참조.
+읽기 순서 추천: 파일 번호 순 (00 → 01 → …). 모르는 용어는 glossary 참조.
 수식을 더 깊이 보려면 /paper-study:explain-equation Eq. N.
 
 브리핑 모드(CLAUDE.md 자동 로드)는 이 폴더에서 세션을 열어야 켜집니다:
 cd <slug> && claude
 ```
 
-`--shallow`면 "분석 상태"에서 overview만 체크하고 나머지는 "skeleton"으로 표기한다.
+`--shallow`면 구획 설계 전이므로 "분석 상태"에 overview와 glossary 머리말만 표기하고, 전체 분석은 `--shallow` 없이 재실행하면 이어진다고 안내한다.
 
 ---
 
@@ -264,9 +267,10 @@ Phase A 2)가 복사하는 scaffold 파일은 이 skill의 `templates/`에 단�
 
 ```
 templates/
-├── CLAUDE.md            # 설명자 인격 ({{...}} 슬롯은 Phase A 4)·5)·Phase A-cal 4)가 치환)
-├── notes/00-overview.md ~ 06-limitations.md   # 섹션별 skeleton
-├── glossary/terms.md    # 3층 용어집 머리말
+├── CLAUDE.md                    # 설명자 인격 ({{...}} 슬롯은 Phase A 4)·5)·Phase A-cal 4)가 치환)
+├── notes/00-overview.md         # 전체 지도 skeleton
+├── notes/_section-template.md   # 구획 공통 템플릿 (Phase B 구획 설계가 복사)
+├── glossary/terms.md            # 3층 용어집 머리말
 └── pdf/.gitkeep
 ```
 
