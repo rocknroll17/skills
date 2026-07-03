@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "rocknroll17-skills",
   "owner": {
     "name": "rocknroll17",
@@ -9,7 +10,22 @@
     {
       "name": "paper-study",
       "source": "./paper-study",
-      "description": "Drop-in briefing agent for reading a research paper. Run /paper-study:new-paper <arxiv_id> to scaffold notes, glossary, and a CLAUDE.md tuned to the paper."
+      "displayName": "Paper Study",
+      "description": "Drop-in briefing agent for reading a research paper. Run /paper-study:new-paper <arxiv_id> to scaffold notes, glossary, and a CLAUDE.md tuned to the paper.",
+      "category": "education",
+      "tags": [
+        "paper",
+        "research",
+        "arxiv",
+        "study",
+        "briefing"
+      ],
+      "homepage": "https://github.com/rocknroll17/skills/tree/main/paper-study",
+      "license": "MIT",
+      "author": {
+        "name": "rocknroll17",
+        "email": "gon1397@naver.com"
+      }
     }
   ]
 }

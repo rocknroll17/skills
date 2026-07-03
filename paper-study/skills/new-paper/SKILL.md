@@ -1,10 +1,14 @@
 ---
 name: new-paper
-description: 비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow
-argument-hint: <arxiv_id | pdf_path | url> [--shallow]
+description: '비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow'
+argument-hint: '<arxiv_id | pdf_path | url> [--shallow]'
+disable-model-invocation: true
+allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
 ---
 
 # 논문 학습 환경 부트스트랩 + 전체 분석
+
+**인자**: `$ARGUMENTS`
 
 현재 디렉토리를 학습 환경으로 초기화하고, PDF 전체 + 필요한 외부 배경지식을 조사해 섹션별 **서사형 분석**과 **3층 용어집**을 생성한다. **목표·설명 원칙·문체는 생성되는 `CLAUDE.md`가 단일 소스다.** 이 문서는 *절차*만 규정한다.
 

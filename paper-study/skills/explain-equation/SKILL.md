@@ -1,9 +1,13 @@
 ---
 name: explain-equation
-description: 논문 수식을 "말하듯이" 풀어주되 원리를 그림으로 그릴 수 있게 해설한다. 비유·기호표·ASCII 흐름도·반사실·숫자 예시의 5블록 구조. Example: /explain-equation Eq. 3 또는 /explain-equation "L = ||y - ŷ||^2"
+description: '논문 수식을 "말하듯이" 풀어주되 원리를 그림으로 그릴 수 있게 해설한다. 비유·기호표·ASCII 흐름도·반사실·숫자 예시의 5블록 구조. Example: /explain-equation Eq. 3 또는 /explain-equation "L = ||y - ŷ||^2"'
+argument-hint: '<"Eq. N" | 수식 문자열>'
+allowed-tools: Read, WebSearch
 ---
 
 # 수식 해설 (5블록 구조)
+
+**대상 수식**: `$ARGUMENTS`
 
 주어진 수식을 **이해의 인지 메커니즘** 순서대로 풀어쓴다. 모든 블록은 짧고 말하듯이. 각 블록을 건너뛰지 말 것. 독자가 읽고 나면 이 수식이 무엇을·왜 하는지 깊이 이해하는 것이 목표 — 설명·응용은 그 이해에서 자연히 따라온다.
 

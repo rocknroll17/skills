@@ -1,9 +1,13 @@
 ---
 name: glossary
-description: 용어를 "직관 → 논문 맥락 → 형식 정의" 3층으로 설명하고, 외부 개념은 작동 원리까지 포함. 단순 정의 금지. Example: /glossary <용어> 또는 /glossary list
+description: '용어를 "직관 → 논문 맥락 → 형식 정의" 3층으로 설명하고, 외부 개념은 작동 원리까지 포함. 단순 정의 금지. Example: /glossary <용어> 또는 /glossary list'
+argument-hint: '<용어 | list>'
+allowed-tools: Read, Write, Edit, WebSearch
 ---
 
 # 용어집 (3층 + 작동 원리)
+
+**대상**: `$ARGUMENTS`
 
 `glossary/terms.md`에 누적 추가·갱신. 단순 "한 문장 정의"로 끝내지 말 것. 사용자가 **원리를 머릿속에 그릴 수 있을 만큼 깊이 이해하게** 만드는 것이 목표 — 설명·응용은 거기서 따라온다. 분야 무관 — 아래 형식은 어떤 영역의 용어에도 그대로 적용한다.
 
