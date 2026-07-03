@@ -21,7 +21,7 @@ Claude Code plugin marketplace for research and study workflows.
 /plugin install paper-study@rocknroll17-skills
 ```
 
-Then, in an empty folder, pass an arXiv ID, a URL, or a local PDF:
+Then, from any folder, pass an arXiv ID, a URL, or a local PDF — each paper gets its own keyword-named subfolder:
 
 ```
 /paper-study:new-paper XXXX.XXXXX                        # arXiv ID

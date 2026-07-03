@@ -1,8 +1,8 @@
 # paper-study (한국어)
 
-Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에이전트**로 만들어준다.
+Claude Code plugin. 논문 한 편마다 **전용 브리핑 에이전트**를 만들어준다.
 
-설치 후 빈 폴더에서 `/paper-study:new-paper <arxiv_id>` 한 줄이면, Claude가 PDF 받고 `CLAUDE.md`·`notes/`·`glossary/` skeleton을 만들고, 브리핑 모드로 첫 질문을 기다린다.
+`/paper-study:new-paper <arxiv_id>` 한 줄이면, Claude가 논문 제목 키워드로 하위 폴더(예: `gaussian-splatting-avatars/`)를 만들고 그 안에 PDF·`CLAUDE.md`·`notes/`·`glossary/`를 채운 뒤 첫 질문을 기다린다. 같은 폴더에서 반복 실행하면 자연스럽게 논문 라이브러리가 쌓인다.
 
 ---
 
@@ -13,7 +13,7 @@ Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에�
 /plugin install paper-study@rocknroll17-skills
 ```
 
-그 다음 빈 폴더에서 arXiv ID·URL·로컬 PDF 아무거나:
+그 다음 아무 폴더에서나 arXiv ID·URL·로컬 PDF — 논문마다 하위 폴더가 생긴다:
 
 ```
 /paper-study:new-paper XXXX.XXXXX                        # arXiv ID
@@ -29,15 +29,15 @@ Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에�
 
 ## `/paper-study:new-paper`가 하는 일
 
-1. PDF를 `./pdf/paper.pdf`로 다운로드
-2. 현재 폴더에 `CLAUDE.md`·`notes/` (6개)·`glossary/terms.md` 생성
+1. 논문 제목을 확보해 키워드 작업 폴더 생성 (예: `gaussian-splatting-avatars/`)
+2. 그 안에 PDF(`pdf/paper.pdf`)·`CLAUDE.md`·`notes/` (6개)·`glossary/terms.md` 생성
 3. 제목·저자·venue 추출해 `CLAUDE.md` §1 채움
 4. PDF 첫 4쪽 정도 읽고 `notes/00-overview.md`에 한 줄 요약 쓰기
 5. Figure를 `figures/`로 추출 (백그라운드 작업)
 6. **독자 수준 calibration** — figure가 추출되는 동안 몇 가지 질문으로 배경을 파악하고, `CLAUDE.md` §2에 개념별 설명 깊이를 설정
 7. 모든 섹션을 `notes/`·`glossary/`로 전체 분석한 뒤 보고
 
-`CLAUDE.md`는 매 세션 자동 로드. 이제 Claude가 그 논문·독자 수준에 맞춘 브리핑 모드로 바뀐다.
+`CLAUDE.md`는 논문 폴더 안에서 세션을 열면(`cd <폴더> && claude`) 자동 로드. 이제 Claude가 그 논문·독자 수준에 맞춘 브리핑 모드로 바뀐다.
 
 ## 슬래시 커맨드 (전부 `paper-study:` 스코프)
 
@@ -50,11 +50,13 @@ Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에�
 ## 부트스트랩 후 폴더 구조
 
 ```
-my-paper/
-├── CLAUDE.md                 # 설명자 인격 정의, 매 세션 자동 로드
-├── pdf/paper.pdf             # 논문
-├── notes/                    # 00-overview.md ~ 06-limitations.md
-└── glossary/terms.md         # 용어 누적
+.                                 # skill을 실행한 폴더
+├── gaussian-splatting-avatars/   # 논문마다 생성 — 제목 키워드 이름
+│   ├── CLAUDE.md                 # 설명자 인격 정의, 이 폴더에서 자동 로드
+│   ├── pdf/paper.pdf             # 논문
+│   ├── notes/                    # 00-overview.md ~ 06-limitations.md
+│   └── glossary/terms.md         # 용어 누적
+└── another-paper/ …
 ```
 
 ## 본인 스타일로 커스터마이즈

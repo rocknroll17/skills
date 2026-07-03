@@ -1,6 +1,6 @@
 ---
 name: new-paper
-description: '비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow'
+description: '현재 디렉토리 아래에 논문 제목 키워드로 폴더를 만들어 그 안을 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow'
 argument-hint: '<arxiv_id | pdf_path | url> [--shallow]'
 disable-model-invocation: true
 allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
@@ -10,7 +10,7 @@ allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
 
 **인자**: `$ARGUMENTS`
 
-현재 디렉토리를 학습 환경으로 초기화하고, PDF 전체 + 필요한 외부 배경지식을 조사해 섹션별 **서사형 분석**과 **3층 용어집**을 생성한다. **목표·설명 원칙·문체는 생성되는 `CLAUDE.md`가 단일 소스다.** 이 문서는 *절차*만 규정한다.
+논문 제목에서 키워드를 뽑은 **작업 폴더를 만들고 그 안을** 학습 환경으로 초기화한 뒤, PDF 전체 + 필요한 외부 배경지식을 조사해 섹션별 **서사형 분석**과 **3층 용어집**을 생성한다. **목표·설명 원칙·문체는 생성되는 `CLAUDE.md`가 단일 소스다.** 이 문서는 *절차*만 규정한다.
 
 ---
 
@@ -18,10 +18,10 @@ allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
 
 | 입력 형태 | 처리 |
 | --- | --- |
-| arXiv ID (`XXXX.XXXXX`, `XXXX.XXXXXvN`) | `curl -L -o pdf/paper.pdf "https://arxiv.org/pdf/<id>"` |
+| arXiv ID (`XXXX.XXXXX`, `XXXX.XXXXXvN`) | `curl -L -o <slug>/pdf/paper.pdf "https://arxiv.org/pdf/<id>"` |
 | arXiv URL (`https://arxiv.org/abs/...`) | URL에서 ID 추출 후 위와 동일 |
-| 로컬 PDF 경로 (`./file.pdf`) | `pdf/paper.pdf`로 `cp` |
-| 일반 PDF URL | `curl -L -o pdf/paper.pdf "<url>"` |
+| 로컬 PDF 경로 (`./file.pdf`) | `<slug>/pdf/paper.pdf`로 `cp` |
+| 일반 PDF URL | `curl -L -o <slug>/pdf/paper.pdf "<url>"` |
 | DOI (`10.xxxx/xxxx`) | WebSearch로 공개 PDF URL 탐색 → 실패 시 재확인 |
 
 ### 옵션 플래그
@@ -32,24 +32,40 @@ allowed-tools: Read, Write, Edit, WebSearch, WebFetch, AskUserQuestion
 
 ## Phase A — 부트스트랩
 
+### 0) 작업 폴더 생성 (제목 키워드 slug)
+논문 **제목을 먼저 확보**하고, 그 키워드로 작업 폴더를 만든다. 이후 모든 산출물은 이 폴더 안에 생성한다.
+
+**제목 확보 순서** (입력 형태별):
+- arXiv ID·URL → WebFetch `https://arxiv.org/abs/<id>` (제목·abstract·venue를 여기서 함께 확보 — 4단계에서 재사용)
+- 로컬 PDF → `pdfinfo <path> | grep Title`, 비어있으면 파일명 사용
+- 일반 PDF URL·DOI → 임시 경로로 먼저 다운로드 후 `pdfinfo`
+
+**slug 규칙**: 제목에서 핵심 키워드 2~4개 → 소문자 kebab-case, ASCII만, 관사·전치사 제외. 예: "Gaussian Splatting for Real-Time Avatars" → `gaussian-splatting-avatars`.
+
+```bash
+mkdir -p <slug>
+```
+- 같은 이름 폴더가 이미 있으면 사용자에게 확인 (이어서 작업 / 다른 이름).
+- **이후 모든 경로는 `<slug>/` 하위다.** Bash는 `cd <slug> && ...` 없이 경로를 직접 붙이고, 파일 도구(Read/Write/Edit)도 `<slug>/pdf/paper.pdf`처럼 접두한다.
+
 ### 1) 기본 디렉토리
-`mkdir -p pdf notes glossary figures`
+`mkdir -p <slug>/pdf <slug>/notes <slug>/glossary <slug>/figures`
 
 ### 2) scaffold 복사 (번들 템플릿)
-템플릿은 이 skill에 번들된 `templates/`에 단일 소스로 보관된다. 현재 디렉토리로 복사한다:
+템플릿은 이 skill에 번들된 `templates/`에 단일 소스로 보관된다. 작업 폴더로 복사한다:
 ```bash
-cp -rn "${CLAUDE_SKILL_DIR}/templates/." .
+cp -rn "${CLAUDE_SKILL_DIR}/templates/." <slug>/
 ```
 `CLAUDE.md`, `notes/00-overview.md`~`06-limitations.md`(7개), `glossary/terms.md`, `pdf/`가 채워진다. `-n`이므로 기존 파일은 보존된다. 충돌 시 사용자에게 확인.
 
 ### 3) PDF 확보
-실패 시 사용자에게 URL·경로 재확인을 요청한다. 허위 데이터 생성 금지.
+`<slug>/pdf/paper.pdf`로 다운로드·복사한다 (0단계에서 임시 다운로드했다면 `mv`). 실패 시 사용자에게 URL·경로 재확인을 요청한다. 허위 데이터 생성 금지.
 
 ### 4) 메타데이터 추출
 ```bash
-pdfinfo pdf/paper.pdf 2>/dev/null | grep -E "Title|Author|Pages"
+pdfinfo <slug>/pdf/paper.pdf 2>/dev/null | grep -E "Title|Author|Pages"
 ```
-arXiv ID가 있으면 WebFetch로 `https://arxiv.org/abs/<id>`에서 abstract·venue를 확보한다.
+0단계에서 WebFetch로 확보한 abstract·venue가 있으면 그대로 쓴다.
 
 ### 5) CLAUDE.md §1 슬롯 치환 (Edit)
 `{{TITLE}}`, `{{AUTHORS}}`, `{{VENUE}}`, `{{ARXIV_ID}}`, `{{HOMEPAGE}}`, `{{ONE_LINER}}`.
@@ -82,13 +98,13 @@ mkdir -p /tmp/paper-src-$$ && cd /tmp/paper-src-$$
 curl -sL "https://arxiv.org/e-print/<id>" -o src.tar.gz
 tar xzf src.tar.gz 2>/dev/null || gunzip -c src.tar.gz > main.tex
 find . -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.pdf' -o -iname '*.eps' \) \
-  -not -name 'paper.pdf' -exec cp {} <CWD>/figures/ \;
+  -not -name 'paper.pdf' -exec cp {} <CWD>/<slug>/figures/ \;
 ```
 Caption은 메인 `.tex`의 `\begin{figure}` 블록에서 `\includegraphics{}` + `\caption{}`를 가능한 범위에서 페어링한다. 종료 후 `rm -rf /tmp/paper-src-$$`.
 
 ### 경로 3: pdfimages (최후 수단)
 ```bash
-pdfimages -png pdf/paper.pdf figures/img
+pdfimages -png <slug>/pdf/paper.pdf <slug>/figures/img
 ```
 Caption 매핑은 불가하다 — `figures/CAPTIONS.md`에 "Raw PDF extraction"으로 명시한다.
 
@@ -211,6 +227,7 @@ Phase B 진입 전, figure 백그라운드 작업의 완료를 확인하고 `fig
 ```
 부트스트랩 + 분석 완료.
 
+작업 폴더: ./<slug>/
 제목: <제목>
 저자: <저자>
 게재: <venue, year>
@@ -232,6 +249,9 @@ figures: <M>개 ./figures/에 저장
 
 읽기 순서 추천: 00 → 01 → 03 → 04 → 05 → 06. 모르는 용어는 glossary 참조.
 수식을 더 깊이 보려면 /paper-study:explain-equation Eq. N.
+
+브리핑 모드(CLAUDE.md 자동 로드)는 이 폴더에서 세션을 열어야 켜집니다:
+cd <slug> && claude
 ```
 
 `--shallow`면 "분석 상태"에서 overview만 체크하고 나머지는 "skeleton"으로 표기한다.

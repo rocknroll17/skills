@@ -1,8 +1,8 @@
 # paper-study
 
-A Claude Code plugin that turns any empty folder into a **briefing agent for a specific research paper**.
+A Claude Code plugin that gives every research paper its own **briefing agent**.
 
-Install it, run `/paper-study:new-paper <arxiv_id>` in an empty folder, and Claude downloads the PDF, scaffolds `CLAUDE.md`, `notes/`, and `glossary/`, then waits for your first question.
+Each `/paper-study:new-paper <arxiv_id>` run creates a subfolder named after the paper's title keywords (e.g. `gaussian-splatting-avatars/`), downloads the PDF into it, scaffolds `CLAUDE.md`, `notes/`, and `glossary/`, then waits for your first question. Run it from the same folder every time and it naturally grows into a paper library.
 
 > 한국어 사용 안내: [README.ko.md](./README.ko.md)
 
@@ -15,7 +15,7 @@ Install it, run `/paper-study:new-paper <arxiv_id>` in an empty folder, and Clau
 /plugin install paper-study@rocknroll17-skills
 ```
 
-Then from any empty folder, pass an arXiv ID, a URL, or a local PDF:
+Then from any folder, pass an arXiv ID, a URL, or a local PDF — each paper gets its own subfolder:
 
 ```
 /paper-study:new-paper XXXX.XXXXX                        # arXiv ID
@@ -31,15 +31,15 @@ Then from any empty folder, pass an arXiv ID, a URL, or a local PDF:
 
 ## What `/paper-study:new-paper` does
 
-1. Downloads the PDF into `./pdf/paper.pdf`
-2. Creates `CLAUDE.md`, `notes/` (6 skeletons), `glossary/terms.md` in the current folder
+1. Fetches the paper title and creates a keyword-named work folder (e.g. `gaussian-splatting-avatars/`)
+2. Downloads the PDF into `<folder>/pdf/paper.pdf` and creates `CLAUDE.md`, `notes/` (6 skeletons), `glossary/terms.md` inside it
 3. Extracts title / authors / venue and fills `CLAUDE.md` §1
 4. Reads the first ~4 pages and writes a one-line overview into `notes/00-overview.md`
 5. Extracts figures into `figures/` (run as a background job)
 6. **Calibrates to you** — while figures extract, it asks a few questions to gauge your background, then sets per-concept explanation depth in `CLAUDE.md` §2
 7. Fully analyzes every section into `notes/` + `glossary/`, then reports back
 
-`CLAUDE.md` is auto-loaded every session; Claude now speaks in **briefing mode** tuned to this paper and your level.
+`CLAUDE.md` is auto-loaded when you open a session inside the paper's folder (`cd <folder> && claude`); Claude then speaks in **briefing mode** tuned to this paper and your level.
 
 ## Slash commands (all scoped under `paper-study:`)
 
@@ -52,11 +52,13 @@ Then from any empty folder, pass an arXiv ID, a URL, or a local PDF:
 ## What gets scaffolded in your folder
 
 ```
-my-paper/
-├── CLAUDE.md                 # tutor personality; auto-loaded
-├── pdf/paper.pdf             # the paper
-├── notes/                    # 00-overview.md … 06-limitations.md
-└── glossary/terms.md         # grows as new terms appear
+.                                 # wherever you run the skill
+├── gaussian-splatting-avatars/   # created per paper, named from title keywords
+│   ├── CLAUDE.md                 # tutor personality; auto-loaded in this folder
+│   ├── pdf/paper.pdf             # the paper
+│   ├── notes/                    # 00-overview.md … 06-limitations.md
+│   └── glossary/terms.md         # grows as new terms appear
+└── another-paper/ …
 ```
 
 ## Customizing the tutor
