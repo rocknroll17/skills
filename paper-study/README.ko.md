@@ -13,16 +13,12 @@ Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에�
 /plugin install paper-study@rocknroll17-skills
 ```
 
-그 다음 빈 폴더에서:
+그 다음 빈 폴더에서 arXiv ID·URL·로컬 PDF 아무거나:
 
 ```
-/paper-study:new-paper 2508.00298
-```
-
-로컬 PDF:
-
-```
-/paper-study:new-paper ./mypaper.pdf
+/paper-study:new-paper XXXX.XXXXX                        # arXiv ID
+/paper-study:new-paper https://arxiv.org/abs/XXXX.XXXXX  # arXiv / PDF URL
+/paper-study:new-paper ./mypaper.pdf                     # 로컬 PDF
 ```
 
 ## 요구 사항
@@ -92,9 +88,19 @@ claude
 
 ## 업데이트
 
+새 버전이 나오면 Claude Code 안에서 세 줄:
+
 ```
 /plugin marketplace update rocknroll17-skills
+/plugin update paper-study@rocknroll17-skills
+/reload-plugins
 ```
+
+1. `marketplace update` — 카탈로그를 갱신해 새 버전을 인식시킨다.
+2. `plugin update` — 새 버전 설치 (`plugin.json`의 `version` 비교, 최신이면 no-op).
+3. `/reload-plugins` — 재시작 없이 현재 세션에 반영.
+
+또는 `/plugin` → **Marketplaces** → **Enable auto-update**를 켜두면 시작 시 자동 업데이트된다 — [공식 문서](https://code.claude.com/docs/en/discover-plugins#configure-auto-updates).
 
 기존 논문 폴더는 건드리지 않음. 다음 `/paper-study:new-paper`부터 새 scaffold 반영.
 

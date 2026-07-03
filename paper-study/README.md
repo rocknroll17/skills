@@ -15,16 +15,12 @@ Install it, run `/paper-study:new-paper <arxiv_id>` in an empty folder, and Clau
 /plugin install paper-study@rocknroll17-skills
 ```
 
-Then from any empty folder:
+Then from any empty folder, pass an arXiv ID, a URL, or a local PDF:
 
 ```
-/paper-study:new-paper 2508.00298
-```
-
-Local PDF works too:
-
-```
-/paper-study:new-paper ./mypaper.pdf
+/paper-study:new-paper XXXX.XXXXX                        # arXiv ID
+/paper-study:new-paper https://arxiv.org/abs/XXXX.XXXXX  # arXiv / PDF URL
+/paper-study:new-paper ./mypaper.pdf                     # local PDF
 ```
 
 ## Requirements
@@ -94,9 +90,19 @@ claude
 
 ## Update
 
+When a new version ships, run these inside Claude Code:
+
 ```
 /plugin marketplace update rocknroll17-skills
+/plugin update paper-study@rocknroll17-skills
+/reload-plugins
 ```
+
+1. `marketplace update` refreshes the catalog so Claude Code sees the new version.
+2. `plugin update` installs it (no-op if you're already on the latest — it compares the `version` in `plugin.json`).
+3. `/reload-plugins` applies the update to the running session, no restart needed.
+
+Alternatively, enable auto-update once (`/plugin` → **Marketplaces** → **Enable auto-update**) and Claude Code updates the plugin at startup — see the [official docs](https://code.claude.com/docs/en/discover-plugins#configure-auto-updates).
 
 Your existing per-paper folders are untouched. The next `/paper-study:new-paper` uses the refreshed scaffold.
 

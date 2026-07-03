@@ -1,6 +1,6 @@
 ---
 name: new-paper
-description: 비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper 2508.00298 또는 /paper-study:new-paper ./mypaper.pdf --shallow
+description: 비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper <arxiv_id | url> 또는 /paper-study:new-paper ./mypaper.pdf --shallow
 argument-hint: <arxiv_id | pdf_path | url> [--shallow]
 ---
 
@@ -14,7 +14,7 @@ argument-hint: <arxiv_id | pdf_path | url> [--shallow]
 
 | 입력 형태 | 처리 |
 | --- | --- |
-| arXiv ID (`2508.00298`, `2412.00837v2`) | `curl -L -o pdf/paper.pdf "https://arxiv.org/pdf/<id>"` |
+| arXiv ID (`XXXX.XXXXX`, `XXXX.XXXXXvN`) | `curl -L -o pdf/paper.pdf "https://arxiv.org/pdf/<id>"` |
 | arXiv URL (`https://arxiv.org/abs/...`) | URL에서 ID 추출 후 위와 동일 |
 | 로컬 PDF 경로 (`./file.pdf`) | `pdf/paper.pdf`로 `cp` |
 | 일반 PDF URL | `curl -L -o pdf/paper.pdf "<url>"` |
