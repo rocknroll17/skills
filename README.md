@@ -37,7 +37,7 @@ skills/
 ├── paper-study/             # plugin 1
 │   ├── .claude-plugin/plugin.json
 │   ├── skills/              # slash commands shipped by this plugin
-│   ├── scaffold/            # template files (also embedded in /new-paper skill)
+│   │   └── new-paper/templates/   # scaffold files copied into each paper folder
 │   ├── README.md
 │   └── README.ko.md
 └── LICENSE

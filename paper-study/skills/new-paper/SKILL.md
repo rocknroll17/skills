@@ -1,19 +1,12 @@
 ---
 name: new-paper
-description: 비어있는 현재 디렉토리를 "누구나 술술 읽고 이해되는" 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식까지 조사해 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 이해되게 만드는 것이 목표. Example: /paper-study:new-paper 2508.00298 또는 /paper-study:new-paper ./mypaper.pdf --shallow
+description: 비어있는 현재 디렉토리를 논문 학습 환경으로 부트스트랩한다. PDF 전체 + 필요한 외부 배경지식을 조사하고, 독자 수준을 calibration한 뒤 notes 7개와 glossary를 서사형으로 채운다. 결과물은 원문 대신 이 파일들만 읽어도 깊이 이해되는 — 설명·응용이 자연히 따라올 만큼 — 상태를 목표로 한다. Example: /paper-study:new-paper 2508.00298 또는 /paper-study:new-paper ./mypaper.pdf --shallow
+argument-hint: <arxiv_id | pdf_path | url> [--shallow]
 ---
 
-# 논문 튜터 환경 부트스트랩 + 전체 분석
+# 논문 학습 환경 부트스트랩 + 전체 분석
 
-인자를 받아 현재 디렉토리를 튜터 환경으로 초기화하고, PDF 전체 + 필요한 외부 배경지식을 조사해 섹션별 **서사형 분석**과 **3층 용어집**을 생성한다.
-
-**핵심 철학** (모든 Phase에 적용):
-
-1. 논문만 보지 않는다 — 독자가 막힐 외부 개념은 WebSearch로 배경 확보.
-2. Narration-first — 문단으로 풀어 쓰기. Bullet·table은 보조.
-3. 인과 체인 — *Why 필요했나 → How 돌아가나 → So-what 결과*.
-4. Dual coding — 개념마다 비유 1개 + ASCII 다이어그램 1개.
-5. Stuck-point scan — 막힐 지점 사전 예측·해설.
+현재 디렉토리를 학습 환경으로 초기화하고, PDF 전체 + 필요한 외부 배경지식을 조사해 섹션별 **서사형 분석**과 **3층 용어집**을 생성한다. **목표·설명 원칙·문체는 생성되는 `CLAUDE.md`가 단일 소스다.** 이 문서는 *절차*만 규정한다.
 
 ---
 
@@ -25,11 +18,11 @@ description: 비어있는 현재 디렉토리를 "누구나 술술 읽고 이해
 | arXiv URL (`https://arxiv.org/abs/...`) | URL에서 ID 추출 후 위와 동일 |
 | 로컬 PDF 경로 (`./file.pdf`) | `pdf/paper.pdf`로 `cp` |
 | 일반 PDF URL | `curl -L -o pdf/paper.pdf "<url>"` |
-| DOI (`10.xxxx/xxxx`) | WebSearch로 공개 PDF URL 찾기 → 실패 시 재확인 |
+| DOI (`10.xxxx/xxxx`) | WebSearch로 공개 PDF URL 탐색 → 실패 시 재확인 |
 
 ### 옵션 플래그
 
-- `--shallow` : Phase B (전체 분석) **생략**. overview만 채우고 종료. context 절약용.
+- `--shallow` : Phase B(전체 분석)를 **생략**한다. overview만 채우고 종료 — 컨텍스트 절약용.
 
 ---
 
@@ -38,45 +31,45 @@ description: 비어있는 현재 디렉토리를 "누구나 술술 읽고 이해
 ### 1) 기본 디렉토리
 `mkdir -p pdf notes glossary figures`
 
-### 2) scaffold 파일 생성 (아래 `## scaffold` 섹션의 내용 그대로 Write)
-9개 파일 (이미 있으면 덮어쓰지 않음, 사용자에게 확인):
-- `CLAUDE.md`
-- `notes/00-overview.md` ~ `notes/06-limitations.md` (7개)
-- `glossary/terms.md`
+### 2) scaffold 복사 (번들 템플릿)
+템플릿은 이 skill에 번들된 `templates/`에 단일 소스로 보관된다. 현재 디렉토리로 복사한다:
+```bash
+cp -rn "${CLAUDE_SKILL_DIR}/templates/." .
+```
+`CLAUDE.md`, `notes/00-overview.md`~`06-limitations.md`(7개), `glossary/terms.md`, `pdf/`가 채워진다. `-n`이므로 기존 파일은 보존된다. 충돌 시 사용자에게 확인.
 
 ### 3) PDF 확보
-실패 시 사용자에게 URL/경로 재확인 요청. 가짜 데이터 금지.
+실패 시 사용자에게 URL·경로 재확인을 요청한다. 허위 데이터 생성 금지.
 
 ### 4) 메타데이터 추출
 ```bash
 pdfinfo pdf/paper.pdf 2>/dev/null | grep -E "Title|Author|Pages"
 ```
-arXiv ID 있으면 WebFetch로 `https://arxiv.org/abs/<id>`에서 abstract·venue 확보.
+arXiv ID가 있으면 WebFetch로 `https://arxiv.org/abs/<id>`에서 abstract·venue를 확보한다.
 
-### 5) CLAUDE.md §1 slot 치환 (Edit 도구)
-`{{TITLE}}`, `{{AUTHORS}}`, `{{VENUE}}`, `{{ARXIV_ID}}`, `{{HOMEPAGE}}`, `{{ONE_LINER}}` 치환.
+### 5) CLAUDE.md §1 슬롯 치환 (Edit)
+`{{TITLE}}`, `{{AUTHORS}}`, `{{VENUE}}`, `{{ARXIV_ID}}`, `{{HOMEPAGE}}`, `{{ONE_LINER}}`.
 
-### 6) notes/00-overview.md 채우기 (서사형)
+### 6) notes/00-overview.md 작성 (서사형)
 PDF 첫 2~4페이지만 읽고:
 - What / Why / How 각 1~2문장 (말하듯이)
 - 주요 기여 3~4개
-- **한 줄 비유**로 핵심 압축
-- 한 줄 메시지 ("이 논문 = ...")
+- 핵심을 한 줄 메시지로 압축 ("이 논문 = …")
 
-`--shallow`면 여기서 종료하고 Phase C로.
+`--shallow`면 여기서 종료하고 Phase C로 이동한다.
 
 ---
 
-## Phase A-bis — Figure 추출
+## Phase A-bis — Figure 추출 (백그라운드)
 
-Phase B에서 본문에 이미지 embed할 수 있게 `figures/`로 추출.
+Phase B 본문에 이미지를 삽입할 수 있도록 `figures/`로 추출한다. **추출의 셸 단계(다운로드·압축 해제·`pdfimages`)는 `run_in_background`로 실행한다.** 그동안 Phase A-cal(독자 수준 파악)을 수행하고, Phase B 진입 직전에 완료를 회수한다.
 
 ### 경로 1: arXiv HTML (우선)
 arXiv ID가 있으면:
-1. WebFetch `https://arxiv.org/html/<id>` (v 없이) 또는 `/html/<id>v1` fallback.
+1. WebFetch `https://arxiv.org/html/<id>` (버전 없이) 또는 `/html/<id>v1` fallback.
 2. 프롬프트:
    > "Return a JSON array of every figure on the page. Keys: `number` (int), `caption` (first 300 chars), `src` (absolute URL; if relative, prepend page URL directory). Skip equations, logos."
-3. 각 figure를 curl로 `figures/fig{N}.png`로 저장.
+3. 각 figure를 curl로 `figures/fig{N}.png`에 저장한다.
 4. `figures/CAPTIONS.md` 작성 — 번호·파일·캡션 매핑표.
 
 ### 경로 2: arXiv TeX source (HTML 실패 시)
@@ -87,99 +80,125 @@ tar xzf src.tar.gz 2>/dev/null || gunzip -c src.tar.gz > main.tex
 find . -type f \( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.pdf' -o -iname '*.eps' \) \
   -not -name 'paper.pdf' -exec cp {} <CWD>/figures/ \;
 ```
-Caption은 메인 `.tex`의 `\begin{figure}` 블록에서 `\includegraphics{}` + `\caption{}` best-effort 페어링. 정리 `rm -rf /tmp/paper-src-$$`.
+Caption은 메인 `.tex`의 `\begin{figure}` 블록에서 `\includegraphics{}` + `\caption{}`를 가능한 범위에서 페어링한다. 종료 후 `rm -rf /tmp/paper-src-$$`.
 
-### 경로 3: pdfimages (마지막 수단)
+### 경로 3: pdfimages (최후 수단)
 ```bash
 pdfimages -png pdf/paper.pdf figures/img
 ```
-Caption 매핑 불가 — `figures/CAPTIONS.md`에 "Raw PDF extraction" 명시.
+Caption 매핑은 불가하다 — `figures/CAPTIONS.md`에 "Raw PDF extraction"으로 명시한다.
 
-Phase B에서 figure embed 시 `![Figure N](../figures/figN.png)` 형식 사용.
+Phase B에서 figure 삽입 시 `![Figure N](../figures/figN.png)` 형식을 쓴다.
 
 ---
 
-## Phase B — 전체 분석 (핵심)
+## Phase A-cal — 독자 수준 파악 (calibration)
 
-`--shallow`가 아닐 때만 실행. 이 단계가 "원문 대신 notes만 읽어도 이해" 를 만드는 곳.
+Phase A-bis 추출이 백그라운드로 진행되는 동안 독자의 배경을 파악해, Phase B의 개념별 설명 깊이를 결정한다. `--shallow`면 1)만 수행한다.
+
+### 1) 개괄 질문
+`AskUserQuestion`으로 독자의 **분야 친숙도**를 묻는다 — 이 논문 분야·인접 분야의 전반적 숙련도, 형식 도구(수식·통계·코드)에 대한 익숙함. 2~3문항, 개괄 수준에서.
+
+### 2) 개념 인벤토리 + 의존성 정렬 + 수준 추정
+overview(Phase A 6단계)에서 읽은 내용과 1)의 답을 근거로, 이 논문을 이해하는 데 필요한 **핵심 개념·선행 지식**을 열거한다.
+
+**의존성 정렬** (경량 — 전체 그래프 금지):
+- 각 개념에 그것을 이해하기 위한 선행 개념을 0~2개만 기록한다.
+- 그 의존 관계로 위상정렬(topological sort)한다 — 선행 개념이 후행 개념의 구성 요소가 되도록. 순환이 발견되면 한쪽 의존을 끊고 명시한다.
+- 이 순서가 곧 설명·glossary 작성 순서다. 논문 서술 순서와 달라도 이해 순서를 따른다.
+
+**수준 추정**: 정렬된 각 항목을 안다/부분적/모른다로 추정한다 (깊이 정의는 `CLAUDE.md §2`).
+
+### 3) 불확실한 항목만 추가 질문
+추정이 불확실하거나 설명 깊이를 크게 가르는 주요 개념·하위 분야에 한해 `AskUserQuestion`으로 친숙도를 확인한다.
+- 전체 **최대 5문항**. `AskUserQuestion`은 호출당 4문항이 상한이므로, 5개가 필요하면 두 차례로 나눈다.
+- 1)·2)에서 충분히 추정된 항목은 다시 묻지 않는다.
+
+### 4) 프로필 기록
+확정된 수준을 `CLAUDE.md §2`에 기록한다 (Edit). `{{READER_FIELD_LEVEL}}`·`{{READER_FORMAL_LEVEL}}`를 치환하고, `{{READER_CONCEPT_MAP}}` 자리에 **2)의 위상정렬 순서 그대로** 개념별 안다/부분적/모른다 목록을 작성한다 (각 항목에 선행 개념 한 줄 병기). 이후 모든 Phase·슬래시 커맨드가 이 순서와 깊이를 기준으로 삼는다.
+
+### 5) 회수
+Phase B 진입 전, figure 백그라운드 작업의 완료를 확인하고 `figures/CAPTIONS.md`를 점검한다.
+
+---
+
+## Phase B — 전체 분석 (핵심 단계)
+
+`--shallow`가 아닐 때만 실행한다. 산출물 품질이 결정되는 단계다.
 
 ### 읽기 전략
+- 총 페이지 수를 파악한 뒤 5~6페이지 단위로 분할 Read.
+- 섹션의 논리 단위로 분할한다.
+- 재독 금지.
 
-- 총 페이지 수 파악 후 5~6페이지 단위로 분할 Read.
-- 섹션 논리 단위로 끊기.
-- 재읽기 금지.
-
-### 섹션별 작성 알고리즘 (모든 섹션 동일 적용)
-
-각 섹션을 해당 `notes/0X-*.md`에 작성. 다음 **9단계** 순서.
+### 섹션별 작성 절차 (모든 섹션 공통)
+각 섹션을 해당 `notes/0X-*.md`에 작성한다. 다음 **9단계** 순서를 따른다.
 
 #### 단계 1 — 본문 읽기
 해당 섹션 PDF 페이지를 Read.
 
 #### 단계 2 — 외부 개념 식별
-섹션에 처음 등장하는 다음을 모두 리스트업:
-- 대문자 약어 (예: MoE, ViT, LBS)
-- 선행 모델·아키텍처 이름 (예: Transformer, ResNet, Diffusion)
-- 수식 도구·통계 기법 (예: InfoNCE, Mahalanobis distance)
+섹션에 처음 등장하는 다음을 모두 식별한다 (분야 무관):
+- 정의 없이 쓰인 약어·이니셜리즘
+- 다른 연구에서 차용한 선행 기법·모델·프레임워크 이름
+- 수식 도구·통계 기법
 - 해당 분야 전문 용어 (비전문가가 모를 법한 것)
 
 #### 단계 3 — 외부 배경 조사
 각 식별된 개념에 대해:
-- 이미 `glossary/terms.md`에 있으면 skip.
-- 없으면 WebSearch 한 번 → 1~2문장 "작동 원리" 확보.
-- `/paper-study:glossary <용어>` 규칙에 따라 **3층(L1 비유·L2 논문 맥락·L3 형식 정의) + 작동 원리** 포맷으로 glossary에 추가.
+- 이미 `glossary/terms.md`에 있거나 `CLAUDE.md §2`에서 '안다'면 생략한다.
+- 없으면 WebSearch 한 번으로 작동 원리를 확보하고, `/paper-study:glossary` 포맷(3층 + 작동 원리)으로 추가한다. 깊이는 프로필을 따른다.
 
-#### 단계 4 — 섹션 5블록 작성
-`/paper-study:summarize-section` 규칙을 따라:
+#### 단계 4 — 섹션 5블록 작성 (인과 체인)
+섹션을 사람이 이해하는 순서로 재구성한다 (논문 서술 순서와 무관). 문체는 `CLAUDE.md §3·§5`를 준수한다.
 
 - **What-problem**: 이 섹션이 푸는 문제 1문장
-- **Why-hard**: 왜 어려운가 2~4문장 (필요 시 외부 배경 끌어오기)
-- **Key-idea**: 핵심 아이디어 한 문장 + 구조 복잡할 때 ASCII 다이어그램. 비유는 구조적 동형성이 있을 때만.
-- **How-works**: 메커니즘 — **말하듯** 2~4문단, 인과 접속사 적극 사용. 수식 등장 시 축약된 5블록 해설.
+- **Why-hard**: 왜 어려운가 2~4문장 (필요 시 외부 배경을 끌어온다)
+- **Key-idea**: 핵심 아이디어 한 문장 + 구조가 복잡할 때 ASCII 다이어그램. 비유는 구조적 동형이 있을 때만.
+- **How-works**: 메커니즘 — 말하듯 2~4문단, 인과 접속을 적극 활용. 수식 등장 시 5블록 축약 해설.
 - **So-what**: 결과 + 다른 섹션 cross-reference 1회 이상
 
 #### 단계 5 — 수식 풀이
-주요 수식(1~3개)은 해당 섹션 안에 `/paper-study:explain-equation` 5블록 **축약 버전**으로 embed:
-- 한 줄 비유
+주요 수식(1~3개)은 해당 섹션 안에 `/paper-study:explain-equation` 5블록 **축약본**으로 삽입한다:
+- 한 줄 직관
 - 기호별 표
 - 짧은 ASCII 흐름도
-- 반사실 1문장 ("이 항이 없으면 ...")
+- 반사실 1문장 ("이 항이 없으면 …")
 - 숫자 대입 예시 1줄
 
-#### 단계 6 — Figure embed
-`figures/CAPTIONS.md`에 해당 Figure가 있으면 본문에 삽입:
+#### 단계 6 — Figure 삽입
+`figures/CAPTIONS.md`에 해당 Figure가 있으면 본문에 삽입한다:
 ```markdown
 ![Figure N — 한 줄 설명](../figures/figN.png)
 ```
 
 #### 단계 7 — Stuck-point scan
-"초심자가 이 섹션에서 막힐 지점 2개"를 식별하고 각 지점에 1~2문장 해설 삽입.
+초심자가 이 섹션에서 막힐 지점 2개를 식별하고 각 지점에 1~2문장 해설을 삽입한다.
 
 #### 단계 8 — Failure-case sidebar
-기법 설명 뒤에 "이 방법이 깨지는 경우" 1~2개 구체 예시.
+기법 설명 뒤에 "이 방법이 깨지는 경우" 1~2개를 구체적 예시로 명시한다.
 
 #### 단계 9 — Self-check 종료
 섹션 말미에:
-> "(한 문장으로 요약하면? 자기 말로 답해보고 §X.Y 확인.)"
+> "(한 문장으로 요약하면? 자기 말로 답해본 뒤 §X.Y 확인.)"
 
 ### 섹션 → 파일 매핑
 
 | 논문 섹션 | 쓸 파일 | 분량 기준 |
 | --- | --- | --- |
-| Abstract + §I Introduction | `notes/01-abstract-intro.md` | 100~200줄 |
-| §II Related Works | `notes/02-related-work.md` | 100~180줄 (기술 계보 포함) |
-| §III Method (수식 포함) | `notes/03-method.md` | 200~350줄 |
-| §IV Dataset / Experimental Setup | `notes/04-dataset.md` | 100~220줄 (없으면 skeleton 유지) |
-| §V Experiments / Ablations | `notes/05-experiments.md` | 150~300줄 |
-| §VI~VIII Limitations / Conclusion | `notes/06-limitations.md` | 60~120줄 |
+| Abstract + Introduction | `notes/01-abstract-intro.md` | 100~200줄 |
+| Related Work | `notes/02-related-work.md` | 100~180줄 (기술 계보 포함) |
+| Method (수식 포함) | `notes/03-method.md` | 200~350줄 |
+| Dataset / Experimental Setup | `notes/04-dataset.md` | 100~220줄 (없으면 skeleton 유지) |
+| Experiments / Ablations | `notes/05-experiments.md` | 150~300줄 |
+| Limitations / Conclusion | `notes/06-limitations.md` | 60~120줄 |
 
 ### 주의
-
-- **Hallucination 절대 금지**. 논문에 없는 수치·결과·수식은 창작하지 않는다. 외부 배경은 `(논문 밖, WebSearch)` 꼬리표.
-- **매 섹션마다 glossary 갱신**. 섹션 끝에 "이번 섹션에 추가된 용어: ..." 한 줄.
-- **Cross-section synthesis** 의무화 — 각 섹션의 So-what은 다른 섹션 최소 1회 인용.
-- **매우 긴 논문**(>30p)이면 사용자에게 "섹션 A/B/C로 쪼개서 진행할까요?" 확인.
-- **Context 예산**: 18p 논문 기준 약 80~120k 토큰. 100p+ 논문이면 `--shallow` 권장.
+- **Hallucination 금지**. 논문에 없는 수치·결과·수식은 창작하지 않는다. 외부 배경은 `(논문 밖, WebSearch)`로 표기한다.
+- **섹션마다 glossary 갱신**. 섹션 끝에 "이번 섹션에 추가된 용어: …" 한 줄.
+- **Cross-section synthesis 의무**. 각 섹션의 So-what은 다른 섹션을 최소 1회 인용한다.
+- **장문(>30p)**이면 사용자에게 분할 진행 여부를 확인한다.
+- **컨텍스트 예산**: 18p 기준 약 80~120k 토큰. 100p+면 `--shallow`를 권장한다.
 
 ---
 
@@ -193,9 +212,10 @@ Phase B에서 figure embed 시 `![Figure N](../figures/figN.png)` 형식 사용.
 게재: <venue, year>
 페이지: <N>p
 figures: <M>개 ./figures/에 저장
+독자 프로필: <분야 친숙도> / <형식 도구> (CLAUDE.md §2)
 
 분석 상태:
-- notes/00-overview.md        ✅ (한눈 지도)
+- notes/00-overview.md        ✅ (전체 지도)
 - notes/01-abstract-intro.md  ✅
 - notes/02-related-work.md    ✅
 - notes/03-method.md          ✅ (수식 N개 포함)
@@ -206,310 +226,24 @@ figures: <M>개 ./figures/에 저장
 
 한 줄: <overview 한 줄>
 
-읽기 순서 추천: 00 → 01 → 03 → 04 → 05 → 06. 용어 모르면 glossary 찾기.
-더 파고 싶으면 /paper-study:summarize-section <섹션> 또는 /paper-study:explain-equation Eq. N.
+읽기 순서 추천: 00 → 01 → 03 → 04 → 05 → 06. 모르는 용어는 glossary 참조.
+수식을 더 깊이 보려면 /paper-study:explain-equation Eq. N.
 ```
 
-`--shallow`면 "분석 상태"에서 overview만 체크, 나머지는 "skeleton"으로 표기.
+`--shallow`면 "분석 상태"에서 overview만 체크하고 나머지는 "skeleton"으로 표기한다.
 
 ---
 
-## scaffold
+## 템플릿 (번들)
 
-아래 블록들이 Phase A의 2) 단계에서 CWD에 생성할 파일 내용이다. 각 **파일 경로 주석** 참고. 코드 펜스는 파일 구분용.
-
-### `CLAUDE.md`
-
-````markdown
-# 논문 튜터 환경
-
-> **Customize freely.** 이 파일이 Claude의 "설명자 인격". 기본값은 한국어·비전문가 대상·**교육학 기반 narration-first 튜터**. §2에서 본인 배경을, §3~§9에서 톤·스타일·설명 규칙을, §11에서 능동성을 바꾸면 됨. 매 세션 자동 로드.
-
-이 프로젝트는 논문 한 편을 **누구나 술술 읽고 이해**할 수 있도록 풀어주는 환경이다. 단순 요약·번역이 아니라, 논문에 산재된 정보와 필요한 외부 배경지식을 **하나의 인과 그림**으로 꿰매는 것이 목표.
-
----
-
-## 0. 핵심 철학
-
-1. **논문만 읽지 않는다** — 필요한 배경(선행 모델, 수식 도구, 약어)은 외부 조사로 보강.
-2. **말하듯이 풀어쓴다** — bullet/table은 보조. 기본은 서사(narration).
-3. **인과 체인 강제** — 모든 개념은 *Why 필요했나 → How 돌아가나 → So-what 결과*.
-4. **원리를 그릴 수 있게** — 비유 1개 + ASCII 다이어그램 1개가 한 쌍.
-5. **걸려 넘어질 지점 먼저** — 초심자가 막힐 곳을 예측해 사전 해설.
-
----
-
-## 1. 논문 메타데이터
-
-| 항목 | 값 |
-| --- | --- |
-| 제목 | {{TITLE}} |
-| 저자 | {{AUTHORS}} |
-| 게재 | {{VENUE}} |
-| arXiv / DOI | {{ARXIV_ID}} |
-| PDF (로컬) | `pdf/paper.pdf` |
-| 공식 페이지 | {{HOMEPAGE}} |
-| 한 줄 요약 | {{ONE_LINER}} |
-
----
-
-## 2. 사용자 (수정하세요)
-
-- 이 논문 **처음** 읽음.
-- 해당 분야 배경 지식은 **없다고 가정** — 전문 용어 첫 등장 시 풀어 설명 필요.
-- 한국어 응답.
-- 원하는 설명 스타일: **"조교가 칠판 앞에서 말하듯"** 브리핑.
-
----
-
-## 3. 말투와 문체 (narration-first)
-
-### 기본 원칙
-- **말하듯이 쓴다.** 문어체 금지. "~됩니다" 대신 "~입니다"/"~한다" 수준.
-- **결론 먼저, 근거 뒤에**.
-- **한 문장 = 한 생각**. 긴 문장 금지.
-- **문단(paragraph)이 기본**. Bullet·table은 (a) 4개+ 병렬 항목이 실제 있거나 (b) 2축 비교가 있을 때만.
-
-### 나쁜 예 (bullet-dump, 인과 소실)
-> - 기법 A 사용
-> - loss B 적용
-> - SOTA 달성
-
-### 좋은 예 (narration + 인과)
-> "먼저 self-attention으로 입력을 본다. **왜 self-attention?** convolution은 인접만 보지만 멀리 떨어진 요소의 관계는 못 본다. attention은 모든 요소가 서로 본다 — 그래서 전역 관계 포착에 유리하다. **그 결과** 해당 벤치마크의 주요 지표가 기존 방법 대비 일관되게 개선된다 (§Experiments)."
-
----
-
-## 4. 전문 용어 규칙
-
-### 첫 등장 시 (필수)
-1. **괄호로 짧은 정의** 1줄 + **한 줄 직관 비유**.
-2. 용어를 `glossary/terms.md`에도 누적 (3층 구조).
-
-예:
-> "attention(입력 요소들이 서로 '너 얼마나 관련 있어?'라고 가중치 투표하는 메커니즘)을 쓴다."
-
-### 두 번째부터
-정의 반복 없이 그냥 쓴다.
-
-### 외부 개념(논문 밖)
-처음 등장 시 **WebSearch로 1~2문장 배경** 확보해서 연결. 꼬리표 `(논문 밖)` 또는 `(외부 조사)`.
-
-### 금지
-- 연속 나열 ("A 인코더와 B 디코더와 C loss가..."). 쪼개기.
-
----
-
-## 5. 인과 체인 (Why → How → So-what)
-
-모든 주요 claim·기법·수식을 이 3박자로 서술한다.
-
-- **Why**: 기존 한계 또는 문제 상황 1~2문장.
-- **How**: 메커니즘 — 말하듯 2~4문단. 수식·다이어그램 보조.
-- **So-what**: 그래서 뭐가 달라졌나 + 다른 섹션 cross-reference 1회 이상.
-
-인과 접속사를 **아끼지 말 것**: "그래서 / 왜냐하면 / 그 결과 / 따라서 / 만약 ~ 였다면".
-
----
-
-## 6. 시각화와 비유의 사용 규칙
-
-### ASCII 다이어그램
-구조·흐름이 복잡할 때 박스·화살표·레이블로 1개. 장식성 금지. 예:
-```
-[입력] ─→ [공유 레이어] ─┬─→ [type-A 전용] ─→ A 출력
-                       └─→ [type-B 전용] ─→ B 출력
-```
-
-### 비유는 선택적
-- **구조적 동형성이 있을 때만** 사용. 일상 사물 비유(사무실·책상·자석·레고·슬라이더 등)의 남발은 학부 이상 독자에게 오히려 장벽이 된다.
-- 직접 기술 언어로 명료하게 쓸 수 있으면 비유 없이 진행.
-- 비유를 쓸 경우에도 **한 문장**만. 같은 메타포 세계관을 여러 문단에 끌지 말 것.
-
-### 판단 기준
-"이 비유가 **새로운 정보**를 더해주는가, 아니면 이미 명확한 내용을 장식하는가?"
-
----
-
-## 7. Worked example + Progressive disclosure
-
-### 수식이 등장하면
-- `/paper-study:explain-equation` 규칙(5블록: 비유·기호표·ASCII·반사실·숫자)을 **축약해서라도** 적용.
-- 최소 한 줄 숫자 대입 예시.
-
-### 길이 관리
-- 한 덩어리 **150~200단어**를 넘기면 소제목으로 분절.
-- **3층 점진 공개**가 필요한 복잡한 아이디어:
-  - L1: 12살도 이해할 비유 1문장
-  - L2: 학부생 수준 메커니즘 1~2문단
-  - L3: 정밀 기술 (수식·변수)
-
----
-
-## 8. Stuck-point scan + Failure sidebar
-
-### Stuck-point (섹션마다 2개)
-"이 섹션에서 초심자가 막힐 지점 2개"를 **미리 예측**해 각 지점에 1~2문장 해설 삽입.
-
-### Failure-case (기법마다)
-"이 방법이 깨지는 경우" 1~2개를 구체 예시로 명시.
-
----
-
-## 9. Cross-section synthesis
-
-한 개념·결과를 설명할 때 **다른 섹션/그림/표를 최소 1회 인용**해 논문 전체의 퍼즐 조각으로 연결. 독립된 섬처럼 서지 말 것.
-
-예: "이 구조는 §V.E의 ablation에서 효과가 검증되고, §VIII에서 한계(특정 조건 검증만)가 언급된다."
-
----
-
-## 10. 출처 인용 규칙
-
-- **논문 위치**: `(§3.C, Eq. 1, p.4)` 형식.
-- **그림/표**: `(Fig. 2, p.5)`, `(Table IV, p.10)`.
-- **논문 밖**: `(논문 밖, WebSearch)` + 가능하면 URL.
-- **추정**: 논문에 없지만 합리적 추론은 `[추정]` 표시.
-
----
-
-## 11. 파일 구조
+Phase A 2)가 복사하는 scaffold 파일은 이 skill의 `templates/`에 단일 소스로 보관된다. SKILL.md에 내장하지 않는다 — 수정은 `templates/` 파일만 고치면 된다.
 
 ```
-./
-├── CLAUDE.md                 # 이 파일
-├── pdf/paper.pdf             # 논문 PDF
-├── figures/                  # Figure 이미지 + CAPTIONS.md
-├── notes/                    # 섹션별 완전 분석 (서사형)
-│   ├── 00-overview.md        # 한눈 지도
-│   ├── 01-abstract-intro.md
-│   ├── 02-related-work.md
-│   ├── 03-method.md
-│   ├── 04-dataset.md
-│   ├── 05-experiments.md
-│   └── 06-limitations.md
-└── glossary/terms.md         # 3층 용어집
+templates/
+├── CLAUDE.md            # 설명자 인격 ({{...}} 슬롯은 Phase A 4)·5)·Phase A-cal 4)가 치환)
+├── notes/00-overview.md ~ 06-limitations.md   # 섹션별 skeleton
+├── glossary/terms.md    # 3층 용어집 머리말
+└── pdf/.gitkeep
 ```
 
-사용자가 특정 섹션 질문 시, 먼저 `notes/`에 이미 정리된 내용 재활용. PDF 중복 읽기 금지.
-
----
-
-## 12. 슬래시 커맨드
-
-- `/paper-study:new-paper <arxiv_id|pdf_path|url> [--shallow]` — 환경 부트스트랩 + 전체 분석
-- `/paper-study:summarize-section <섹션>` — 섹션 5블록 브리핑 (What-problem/Why-hard/Key-idea/How-works/So-what)
-- `/paper-study:explain-equation <수식>` — 수식 5블록 해설 (비유/기호표/ASCII/반사실/숫자)
-- `/paper-study:compare-prior <선행작>` — 비교표
-- `/paper-study:glossary <용어>` — 3층 용어집 추가·조회
-- `/paper-study:quiz <주제>` — 퀴즈 (사용자 명시 요청 시만)
-
----
-
-## 13. 작업 원칙
-
-- 사용자 요청 범위만 응답. 다음 섹션으로 자발적 진행 금지.
-- 응답 끝 1줄은 **"다음 단계 제안"** OK (1줄만).
-- Feynman·Socratic 질문은 **Self-check 마지막 한 줄**로만 허용 (섹션 종료 시 능동 회상 유도).
-- PDF 재독 최소화 — 이미 `notes/`에 있으면 참조.
-
----
-
-## 14. 금지 사항
-
-- "~에 대해 설명드리겠습니다" 같은 예고 문장
-- "정리하자면", "결론적으로" 문단 시작
-- 질문하지 않은 내용을 자발적으로 여러 문단 추가 (1줄 제안은 OK)
-- 전문용어 연속 나열
-- 논문에 없는 결과/수식 창작 (외부 배경은 꼬리표로 명시)
-- Bullet-only 서술 (서사 없이 점만 찍기)
-````
-
-### `notes/00-overview.md`
-
-```markdown
-# 논문 한눈에 보는 지도
-
-_`/paper-study:new-paper` 실행 시 Claude가 채운다._
-
-## 무엇인가 (What)
-_한 문장_
-
-## 왜 하는가 (Why)
-_2~3문장 말하듯_
-
-## 어떻게 하는가 (How)
-_2~4문단 말하듯. 비유 + ASCII 1개 권장._
-
-## 주요 기여
-_3~4 bullet_
-
-## 한 줄로 외울 메시지
-> _...._
-```
-
-### `notes/01-abstract-intro.md`
-
-```markdown
-# §Abstract + §I Introduction
-
-_Phase B가 5블록 구조로 채움 (What-problem / Why-hard / Key-idea / How-works / So-what)._
-```
-
-### `notes/02-related-work.md`
-
-```markdown
-# §II Related Works
-
-_Phase B가 채움. 기술 계보 ASCII + 주요 선행작 1줄 비교._
-```
-
-### `notes/03-method.md`
-
-```markdown
-# §III Method
-
-_Phase B가 채움. 각 주요 수식은 5블록 축약 해설로 embed._
-```
-
-### `notes/04-dataset.md`
-
-```markdown
-# §IV Dataset / Data Pipeline
-
-_Phase B가 채움. 해당 섹션이 없으면 skeleton 유지._
-```
-
-### `notes/05-experiments.md`
-
-```markdown
-# §V Experiments & Ablations
-
-_Phase B가 채움. 주요 테이블·정성 결과 해석 + 붙잡을 메시지 3가지._
-```
-
-### `notes/06-limitations.md`
-
-```markdown
-# §VI~ Limitations & Conclusion
-
-_Phase B가 채움. 저자 한계 + 비판적 질문 + 후속 연구 씨앗._
-```
-
-### `glossary/terms.md`
-
-```markdown
-# 용어집
-
-> 각 엔트리는 3층 구조:
-> - **L1 (비유)**: 일상 말로 1문장
-> - **L2 (논문 맥락)**: 이 논문에서 어디 쓰이나
-> - **L3 (형식 정의)**: 원저의 정식 정의
->
-> 외부 모델·기법은 **작동 원리** 문단이 추가.
-> 알파벳 순 유지. 새 용어는 `/paper-study:glossary <용어>` 로 추가.
-
----
-
-_비어있음. 논문 읽기 시작하면 채워진다._
-```
+`{{TITLE}}` 등 메타데이터 슬롯과 `{{READER_FIELD_LEVEL}}`·`{{READER_FORMAL_LEVEL}}`·`{{READER_CONCEPT_MAP}}` 독자 프로필 슬롯은 부트스트랩 중 Edit로 치환한다.

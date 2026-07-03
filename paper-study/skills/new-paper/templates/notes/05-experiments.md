@@ -1,4 +1,4 @@
-# §IV Experiments & Ablations
+# Experiments & Ablations
 
 _사용자가 해당 섹션 질문 시 Claude가 채움._
 

@@ -37,43 +37,42 @@ Claude Code plugin. 빈 폴더 하나를 **논문 한 편 전용 브리핑 에�
 2. 현재 폴더에 `CLAUDE.md`·`notes/` (6개)·`glossary/terms.md` 생성
 3. 제목·저자·venue 추출해 `CLAUDE.md` §1 채움
 4. PDF 첫 4쪽 정도 읽고 `notes/00-overview.md`에 한 줄 요약 쓰기
-5. "어디부터 브리핑할까요?" 1줄로 보고
+5. Figure를 `figures/`로 추출 (백그라운드 작업)
+6. **독자 수준 calibration** — figure가 추출되는 동안 몇 가지 질문으로 배경을 파악하고, `CLAUDE.md` §2에 개념별 설명 깊이를 설정
+7. 모든 섹션을 `notes/`·`glossary/`로 전체 분석한 뒤 보고
 
-`CLAUDE.md`는 매 세션 자동 로드. 이제 Claude가 그 논문 전담 브리핑 모드로 바뀐다.
+`CLAUDE.md`는 매 세션 자동 로드. 이제 Claude가 그 논문·독자 수준에 맞춘 브리핑 모드로 바뀐다.
 
 ## 슬래시 커맨드 (전부 `paper-study:` 스코프)
 
 | 커맨드 | 용도 |
 | --- | --- |
 | `new-paper <arxiv_id \| pdf_path \| url>` | 현재 폴더를 논문 환경으로 부트스트랩 |
-| `summarize-section <섹션>` | 섹션 5층 브리핑 (한줄·기술·상세·비판·계보) |
-| `explain-equation <수식>` | 수식 3단 해설 (기호·직관·한 줄 예시) |
-| `compare-prior <선행작>` | 선행작 비교표 |
+| `explain-equation <수식>` | 수식 5블록 해설 (직관 → 기호 → 다이어그램 → 반사실 → 숫자 예시) |
 | `glossary <용어 \| list>` | 용어집 추가·조회 |
-| `quiz <주제>` | 이해 확인 퀴즈 *(사용자 명시 요청 시만)* |
 
 ## 부트스트랩 후 폴더 구조
 
 ```
 my-paper/
-├── CLAUDE.md                 # 튜터 성격 정의, 매 세션 자동 로드
+├── CLAUDE.md                 # 설명자 인격 정의, 매 세션 자동 로드
 ├── pdf/paper.pdf             # 논문
-├── notes/                    # 00-overview.md ~ 05-limitations.md
+├── notes/                    # 00-overview.md ~ 06-limitations.md
 └── glossary/terms.md         # 용어 누적
 ```
 
 ## 본인 스타일로 커스터마이즈
 
-`CLAUDE.md` 기본값은 다음을 가정:
+`CLAUDE.md` 기본값:
 
-- 사용자는 **해당 분야 초심자** (용어를 한 줄씩 설명).
-- 답변은 **한국어, 브리핑 모드** — 짧게, 결론 먼저, 자발적 Socratic 질문 금지.
+- 답변은 **한국어, 브리핑 모드** — 짧게, 결론 먼저.
+- **독자 프로필**(`§2`)을 calibration 단계가 채우고, 개념별 설명 깊이를 결정.
 
 수정 대상:
 
-- `§2 사용자` — 본인 배경·선호 언어
-- `§3~§7` — 말투, 용어 처리, 길이, 금지 사항
-- `§11` — Claude가 먼저 질문해도 되는지 여부
+- `§2 독자 프로필` — 분야·형식 도구 친숙도, 개념별 깊이
+- `§3~§9` — 말투, 용어 처리, 비유 사용, 길이, 금지 사항
+- `§13` — Claude가 먼저 질문해도 되는지 여부
 
 파일은 세션마다 다시 로드되므로 저장 즉시 반영.
 
@@ -83,13 +82,13 @@ Claude Code CLI가 plugin 지원 전이거나, 템플릿만 복사해서 본인 
 
 ```bash
 git clone https://github.com/rocknroll17/skills.git /tmp/skills-src
-cp -r /tmp/skills-src/paper-study/scaffold ~/my-paper
+cp -r /tmp/skills-src/paper-study/skills/new-paper/templates/. ~/my-paper
 cp -r /tmp/skills-src/paper-study/skills ~/my-paper/.claude/skills
 cd ~/my-paper
 claude
 ```
 
-`scaffold/` 폴더에 `/paper-study:new-paper`가 만드는 파일과 **동일한 내용**이 들어있다. 직접 복사해서 바로 쓸 수 있음.
+`skills/new-paper/templates/`에 `/paper-study:new-paper`가 만드는 파일과 **동일한 내용**이 단일 소스로 들어있다. 직접 복사해서 바로 쓸 수 있음.
 
 ## 업데이트
 

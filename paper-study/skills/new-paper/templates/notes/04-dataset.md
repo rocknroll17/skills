@@ -1,4 +1,4 @@
-# §IV Dataset / Data Pipeline
+# Dataset / Data Pipeline
 
 _Phase B 전체 분석 시 Claude가 채움. 해당 섹션이 없는 논문이면 skeleton 유지._
 
